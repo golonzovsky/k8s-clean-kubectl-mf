@@ -4,33 +4,40 @@ import (
 	"os"
 	"path/filepath"
 
-	"k8s.io/client-go/kubernetes"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/discovery"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
 type Client struct {
-	c *kubernetes.Clientset
+	config  *rest.Config
+	Dynamic *dynamic.DynamicClient
 }
 
 func NewClient(k8sCtx string) (*Client, error) {
-	config, err := k8sConfig(k8sCtx)
+	homeDir, _ := os.UserHomeDir()
+	config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+		&clientcmd.ClientConfigLoadingRules{ExplicitPath: filepath.Join(homeDir, ".kube", "config")},
+		&clientcmd.ConfigOverrides{CurrentContext: k8sCtx}).ClientConfig()
 	if err != nil {
 		return nil, err
 	}
-	clientset, err := kubernetes.NewForConfig(config)
+	dyn, err := dynamic.NewForConfig(config)
 	if err != nil {
 		return nil, err
 	}
 	return &Client{
-		c: clientset,
+		config:  config,
+		Dynamic: dyn,
 	}, nil
 }
 
-func k8sConfig(k8sCtx string) (*rest.Config, error) {
-	homeDir, _ := os.UserHomeDir()
-	kubeconfigPath := filepath.Join(homeDir, ".kube", "config")
-	return clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
-		&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfigPath},
-		&clientcmd.ConfigOverrides{CurrentContext: k8sCtx}).ClientConfig()
+func (c *Client) ListResources() ([]*metav1.APIResourceList, error) {
+	discoveryClient, err := discovery.NewDiscoveryClientForConfig(c.config)
+	if err != nil {
+		return nil, err
+	}
+	return discoveryClient.ServerPreferredResources()
 }
