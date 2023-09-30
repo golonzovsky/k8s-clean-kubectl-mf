@@ -1,4 +1,4 @@
-module github.com/golonzovsky/k8s-clean-managed-fields
+module github.com/golonzovsky/k8s-clean-kubectl-mf
 
 go 1.21.1
 

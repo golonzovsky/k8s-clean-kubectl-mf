@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/charmbracelet/log"
-	"github.com/golonzovsky/k8s-clean-managed-fields/internal/k8s"
+	"github.com/golonzovsky/k8s-clean-kubectl-mf/internal/k8s"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
