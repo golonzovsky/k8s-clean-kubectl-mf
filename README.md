@@ -11,3 +11,5 @@ Here we clean up this nonsense.
 k8s-clean-kubectl-mf --dry-run=false --log-level=debug
 ```
 
+## todo
+- [ ] service mode to listen for changes instead of full scan
