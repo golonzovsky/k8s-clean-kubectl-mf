@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
 	"os"
 	"os/signal"
 
@@ -11,7 +12,15 @@ import (
 )
 
 func main() {
-	log.SetLevel(log.DebugLevel)
+	var (
+		dryRun   bool
+		logLevel string
+	)
+	flag.BoolVar(&dryRun, "dry-run", true, "just list things to be cleaned")
+	flag.StringVar(&logLevel, "log-level", "info", "log level (debug, info, warn, error). Default info")
+	flag.Parse()
+
+	log.SetLevel(log.ParseLevel(logLevel))
 	errorLogger := log.New(os.Stderr)
 
 	c := make(chan os.Signal, 1)
@@ -30,7 +39,7 @@ func main() {
 		os.Exit(1)
 	}()
 
-	if err := cleanup.DoRunCleanup(ctx, true); err != nil {
+	if err := cleanup.DoRunCleanup(ctx, dryRun); err != nil {
 		if !errors.Is(err, context.Canceled) {
 			errorLogger.Error(err.Error())
 		}
