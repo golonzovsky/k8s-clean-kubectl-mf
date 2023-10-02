@@ -8,7 +8,7 @@ import (
 	"os/signal"
 
 	"github.com/charmbracelet/log"
-	"github.com/golonzovsky/k8s-clean-kubectl-mf/internal/cleanup"
+	"github.com/ricardo/k8s-managed-field-cleanup/internal/cleanup"
 )
 
 func main() {
