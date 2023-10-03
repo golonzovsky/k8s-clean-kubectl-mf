@@ -15,9 +15,11 @@ func main() {
 	var (
 		dryRun   bool
 		logLevel string
+		k8sCtx   string
 	)
-	flag.BoolVar(&dryRun, "dry-run", true, "just list things to be cleaned")
+	flag.BoolVar(&dryRun, "dry-run", false, "just list things to be cleaned")
 	flag.StringVar(&logLevel, "log-level", "info", "log level (debug, info, warn, error). Default info")
+	flag.StringVar(&k8sCtx, "context", "", "kubernetes local context override. Default is current context")
 	flag.Parse()
 
 	log.SetLevel(log.ParseLevel(logLevel))
@@ -39,7 +41,7 @@ func main() {
 		os.Exit(1)
 	}()
 
-	if err := cleanup.DoRunCleanup(ctx, dryRun); err != nil {
+	if err := cleanup.DoRunCleanup(ctx, k8sCtx, dryRun); err != nil {
 		if !errors.Is(err, context.Canceled) {
 			errorLogger.Error(err.Error())
 		}
