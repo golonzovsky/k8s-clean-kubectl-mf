@@ -11,8 +11,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-func DoRunCleanup(ctx context.Context, dryRun bool) error {
-	client, err := k8s.NewClient("dev-cookie")
+func DoRunCleanup(ctx context.Context, k8sCtx string, dryRun bool) error {
+	client, err := k8s.NewClient(k8sCtx)
 	if err != nil {
 		return err
 	}
@@ -65,7 +65,7 @@ func DoRunCleanup(ctx context.Context, dryRun bool) error {
 					continue
 				}
 				if s, ok := obj.GetLabels()["app.kubernetes.io/managed-by"]; !ok || s != "Helm" && s != "flagger" {
-					log.Debug("Skipping non-Helm/Flagger resource with kubectl fields", "resource", gvr.String(), "name", obj.GetName())
+					log.Info("Skipping non-Helm/Flagger resource with kubectl fields", "resource", gvr.String(), "name", obj.GetName())
 					continue
 				}
 				obj.SetManagedFields(filteredFields)
