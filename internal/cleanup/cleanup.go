@@ -45,7 +45,7 @@ func DoRunCleanup(ctx context.Context, k8sCtx string, dryRun bool) error {
 				if errors.Is(err, context.Canceled) {
 					return err
 				}
-				log.Error("Error listing "+gvr.String()+":", "err", err)
+				log.Debug("Error listing "+gvr.String()+":", "err", err)
 				continue
 			}
 
@@ -53,7 +53,7 @@ func DoRunCleanup(ctx context.Context, k8sCtx string, dryRun bool) error {
 				filteredFields := make([]metav1.ManagedFieldsEntry, 0)
 				for _, f := range obj.GetManagedFields() {
 					if f.Manager == "kubectl-edit" {
-						log.Warn("found kubectl-edit managed field",
+						log.Info("found kubectl-edit managed field",
 							"gvr", fmt.Sprintf("%s/%s/%s", gvr.Group, gvr.Version, gvr.Resource),
 							"res", obj.GetNamespace()+"/"+obj.GetName(),
 							"field", f)
@@ -71,6 +71,7 @@ func DoRunCleanup(ctx context.Context, k8sCtx string, dryRun bool) error {
 				obj.SetManagedFields(filteredFields)
 				options := metav1.UpdateOptions{}
 				if dryRun {
+					log.Warn("Dry-run, skip update on", "resource", gvr.String(), "name", obj.GetName())
 					continue
 					//options.DryRun = []string{metav1.DryRunAll}
 				}

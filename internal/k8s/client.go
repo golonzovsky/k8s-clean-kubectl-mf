@@ -41,6 +41,10 @@ func localOrInClusterConfig(k8sCtx string) (*rest.Config, error) {
 	homeDir, _ := os.UserHomeDir()
 	kubeConfig := filepath.Join(homeDir, ".kube", "config")
 
+	if os.Getenv("KUBECONFIG") != "" {
+		kubeConfig = os.Getenv("KUBECONFIG")
+	}
+
 	_, err := os.Stat(kubeConfig)
 	if err == nil {
 		return clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
